@@ -23,30 +23,14 @@ public class SWTWalletBlockchain implements BaseWalletUtil {
     }
 
     @Override
-    public void createWallet(final String walletName, final String walletPassword, int blockType, final WCallback callback) {
+    public void importWalletWithWords(String privateKey, int blockType, WCallback callback) {
         if (!checkInit(callback)) {
             return;
         }
         GsonUtil json = new GsonUtil("{}");
         json.putInt("blockType", blockType);
-        JSUtil.getInstance().callJS("createJtWallet", json, callback);
-    }
-
-    @Override
-    public void importWallet(String privateKey, int blockType, int type, WCallback callback) {
-        if (!checkInit(callback)) {
-            return;
-        }
-        GsonUtil json = new GsonUtil("{}");
-        json.putInt("blockType", blockType);
-
-        if (type == 1) {
-            json.putString("words", privateKey);
-            JSUtil.getInstance().callJS("importWalletWithWords", json, callback);
-        } else if (type == 2) {
-            json.putString("privateKey", privateKey);
-            JSUtil.getInstance().callJS("retrieveWalletFromPk", json, callback);
-        }
+        json.putString("words", privateKey);
+        JSUtil.getInstance().callJS("importWalletWithWords", json, callback);
     }
 
     @Override
@@ -63,14 +47,6 @@ public class SWTWalletBlockchain implements BaseWalletUtil {
         GsonUtil gasPriceJson = new GsonUtil("{}");
         gasPriceJson.putDouble("gasPrice", gasPrice);
         callback.onGetWResult(0, gasPriceJson);
-    }
-
-    @Override
-    public void signedTransaction(GsonUtil data, WCallback callback) {
-        if (!checkInit(callback)) {
-            return;
-        }
-        JSUtil.getInstance().callJS("jtSingtx", data, callback);
     }
 
     @Override

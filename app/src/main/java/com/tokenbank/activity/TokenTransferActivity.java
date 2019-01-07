@@ -6,11 +6,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.jccdex.jwallet.JWalletManager;
+import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.tokenbank.R;
 import com.tokenbank.base.BaseWalletUtil;
 import com.tokenbank.base.TBController;
@@ -249,26 +252,29 @@ public class TokenTransferActivity extends BaseActivity implements View.OnClickL
     private void signedSwtTransaction(double fee, long sequence, String senderAddress, String receiverAddress,
                                       double value, String seed, String currency, String issuer) {
         GsonUtil swtSigned = new GsonUtil("{}");
-        swtSigned.putDouble("fee", fee);
-        swtSigned.putDouble("value", value);
-        swtSigned.putLong("sequence", sequence);
-        swtSigned.putString("account", senderAddress);
-        swtSigned.putString("destination", receiverAddress);
-        swtSigned.putString("currency", currency);
-        swtSigned.putString("seed", seed);
-        swtSigned.putString("issuer", issuer);
-        mWalletUtil.signedTransaction(swtSigned, new WCallback() {
+        GsonUtil amount = new GsonUtil("{}");
+        amount.putDouble("value", value);
+        amount.putString("currency", currency);
+        amount.putString("issuer", issuer);
+        swtSigned.put("Amount", amount);
+        swtSigned.putDouble("Fee", fee);
+        swtSigned.putLong("Sequence", sequence);
+        swtSigned.putString("Account", senderAddress);
+        swtSigned.putString("Destination", receiverAddress);
+        swtSigned.putString("TransactionType", "Payment");
+        CallBackFunction callBackFunction = new CallBackFunction() {
             @Override
-            public void onGetWResult(int ret, GsonUtil extra) {
-                if (ret == 0) {
-                    final String rawTransaction = extra.getObject("signedTransaction", "{}").getString("rawTransaction", "");
+            public void onCallBack(String data) {
+                if (!TextUtils.equals(data, "null")) {
+                    final String rawTransaction = data;
                     sendSignedTransaction(rawTransaction);
                 } else {
                     resetTranferBtn();
                     ToastUtil.toast(TokenTransferActivity.this, getString(R.string.toast_transfer_failed) + 6);
                 }
             }
-        });
+        };
+        JWalletManager.getInstance(this).signTx(swtSigned.toString(), seed, "", callBackFunction);
     }
 
 

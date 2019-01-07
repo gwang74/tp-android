@@ -174,7 +174,7 @@ public class WordsFragment extends BaseFragment implements View.OnClickListener 
     private void importWallet() {
         final String words = mEdtWalletWords.getText().toString();
         final String password = mEdtWalletPwd.getText().toString();
-        mWalletUtil.importWallet(words, (int) mBlock.hid, 1, new WCallback() {
+        mWalletUtil.importWalletWithWords(words, (int) mBlock.hid, new WCallback() {
             @Override
             public void onGetWResult(int ret, GsonUtil extra) {
                 if (ret == 0) {

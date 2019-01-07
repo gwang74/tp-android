@@ -10,17 +10,14 @@ public interface BaseWalletUtil {
 
     void init();
 
-    void createWallet(String walletName, String walletPassword, int blockType, WCallback callback);
 
-    void importWallet(String privateKey, int blockType, int type, WCallback callback);
+    void importWalletWithWords(String privateKey, int blockType, WCallback callback);
 
     void toIban(String address, WCallback callback);
 
     void fromIban(String ibanAddress, WCallback callback);
 
     void gasPrice(WCallback callback);
-
-    void signedTransaction(GsonUtil data, WCallback callback);
 
     void sendSignedTransaction(String rawTransaction, WCallback callback);
 
@@ -48,7 +45,7 @@ public interface BaseWalletUtil {
 
     void queryTransactionDetails(String hash, WCallback callback);
 
-    void queryBalance(String address,int type, WCallback callback);
+    void queryBalance(String address, int type, WCallback callback);
 
     void queryTransactionList(GsonUtil params, WCallback callback);
 

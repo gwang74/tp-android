@@ -12,12 +12,7 @@ public class TestWalletBlockchain implements BaseWalletUtil {
     }
 
     @Override
-    public void createWallet(String walletName,  String walletPassword, int blockType, WCallback callback) {
-
-    }
-
-    @Override
-    public void importWallet(String privateKey, int blockType, int type, WCallback callback) {
+    public void importWalletWithWords(String privateKey, int blockType, WCallback callback) {
 
     }
 
@@ -33,11 +28,6 @@ public class TestWalletBlockchain implements BaseWalletUtil {
 
     @Override
     public void gasPrice(WCallback callback) {
-
-    }
-
-    @Override
-    public void signedTransaction(GsonUtil data, WCallback callback) {
 
     }
 

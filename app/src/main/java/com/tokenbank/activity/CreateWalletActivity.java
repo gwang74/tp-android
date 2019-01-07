@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.jccdex.jwallet.JWalletManager;
+import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.tokenbank.R;
 import com.tokenbank.base.BlockChainData;
 import com.tokenbank.base.BaseWalletUtil;
@@ -200,28 +202,29 @@ public class CreateWalletActivity extends BaseActivity implements View.OnClickLi
 
     private void createWallet(final String walletName, final String walletPwd) {
         setBtnStateToCreating();
-        mWalletUtil.createWallet(walletName, walletPwd, (int) mBlock.hid, new WCallback() {
+        CallBackFunction callBackFunction = new CallBackFunction() {
             @Override
-            public void onGetWResult(int ret, GsonUtil extra) {
-                if (ret == 0) {
+            public void onCallBack(String data) {
+                if (!TextUtils.equals(data, "null")) {
                     TLog.d(TAG, "创建钱包成功");
+                    GsonUtil extra = new GsonUtil(data);
                     String hash = FileUtil.getStringContent(walletPwd);
-                    String privateKey = extra.getString("privatekey", "");
-                    int walletType = extra.getInt("blockType", -1);
+                    String privateKey = extra.getString("secret", "");
                     String words = extra.getString("words", "");
                     String address = extra.getString("address", "");
                     if (mWalletUtil.isWalletLegal(privateKey, address)) {
-                        recordWallet(walletName, walletType, hash, privateKey, words, mEdtWalletTips.getText().toString(),
+                        recordWallet(walletName, (int) mBlock.hid, hash, privateKey, words, mEdtWalletTips.getText().toString(),
                                 extra.getString("address", ""));
                     } else {
                         resetBtn();
-                        ToastUtil.toast(CreateWalletActivity.this, "创建钱包失败, 错误码 1");
+                        ToastUtil.toast(CreateWalletActivity.this, getString(R.string.toast_create_failed_1));
                     }
                 } else {
-                    ToastUtil.toast(CreateWalletActivity.this, "创建钱包失败, 错误码 2" + extra.toString());
+                    ToastUtil.toast(CreateWalletActivity.this, getString(R.string.toast_create_failed_2));
                 }
             }
-        });
+        };
+        JWalletManager.getInstance(this).createWallet(mBlock.defaulttoken, callBackFunction);
     }
 
     private void recordWallet(final String name, final int walletType, final String hash, final String privateKey,

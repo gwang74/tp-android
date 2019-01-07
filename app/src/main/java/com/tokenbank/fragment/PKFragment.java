@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.android.jccdex.jwallet.JWalletManager;
+import com.github.lzyzsd.jsbridge.CallBackFunction;
 import com.tokenbank.R;
 import com.tokenbank.activity.MainActivity;
 import com.tokenbank.activity.WebBrowserActivity;
@@ -187,10 +189,11 @@ public class PKFragment extends BaseFragment implements View.OnClickListener {
     private void importWallet() {
         final String privateKey = mEdtWalletPrivateKey.getText().toString();
         final String password = mEdtWalletPwd.getText().toString();
-        walletblockchain.importWallet(privateKey, (int) mBlock.hid, 2, new WCallback() {
+        CallBackFunction callBackFunction = new CallBackFunction() {
             @Override
-            public void onGetWResult(int ret, GsonUtil extra) {
-                if (ret == 0) {
+            public void onCallBack(String data) {
+                if (!TextUtils.equals(data, "null")) {
+                    GsonUtil extra = new GsonUtil(data);
                     String address = extra.getString("address", "");
                     if (isWalletExsit(address)) {
                         if (flag == 1) {
@@ -202,15 +205,15 @@ public class PKFragment extends BaseFragment implements View.OnClickListener {
                             WalletInfoManager.getInstance().updateWalletHash(address, FileUtil.getStringContent(password));
                             return;
                         }
-
                     }
-                    uploadWallet(mEdtWalletName.getText().toString(), extra.getInt("blockType", -1), FileUtil.getStringContent(password),
+                    uploadWallet(mEdtWalletName.getText().toString(), (int) mBlock.hid, FileUtil.getStringContent(password),
                             privateKey, address);
                 } else {
                     ToastUtil.toast(getActivity(), getString(R.string.toast_import_wallet_failed));
                 }
             }
-        });
+        };
+        JWalletManager.getInstance(getContext()).importSecret(privateKey, mBlock.defaulttoken, callBackFunction);
     }
 
     private void uploadWallet(final String name, final int walletType, final String hash, final String privateKey,
